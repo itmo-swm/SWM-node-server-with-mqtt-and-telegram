@@ -24,6 +24,7 @@ var config = {
 				'rpc_server' : '77.234.202.168',
 				'rpc_port'   : 5678,
 				'api_key':'257024353:AAHyAVccpsfBZUBwfvPD030SVNJBiPpYbUo',
+				'db' : 'mongodb://localhost/smart-waste-management-development'
 			};
 
 module.exports = config;

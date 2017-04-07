@@ -14,7 +14,12 @@
     min_bal_required = 0,
     mongoose = require('mongoose'),
     SGB = require('./models/sgb'),
-    Transaction = require('./models/transactions');
+    Transaction = require('./models/transactions'),
+    image_folder = './qr-images';
+
+
+    if(!fs.exists(image_folder))
+       fs.mkdirSync(image_folder);
 
     // The SGBs lying in a circle with user's location and this radius (in KM) are queried for in the database
     const km_radius = 3;
@@ -43,7 +48,6 @@
       var qr = require('qr-image'),
       qr_image_format = 'png',
       qr_png = qr.image(rand_for_qr, { type: qr_image_format }),
-      image_folder = './qr-images/',
       qr_image_name = Date.now()+'.'+qr_image_format,
       qr_image_path = image_folder + qr_image_name,
       write_stream = fs.createWriteStream(qr_image_path);

@@ -1,7 +1,6 @@
 var config = require('./config');
 const mqtt = require('mqtt');
 const client = mqtt.connect(config.mosquito_broker);
-var redis = require('./redis_global');
 
 var PUB_AUTHENTICATE_TOPIC = "SERVER/Authenticate";
 var PUB_WASTE_TOPIC = "SERVER/Waste";
@@ -11,9 +10,9 @@ var SUB_WASTE_TOPIC = "SGB/Waste";
 var Web3 = require('web3');
 var web3 = new Web3(new Web3.providers.HttpProvider(config.rpc_server+':'+config.rpc_port));
 
-var TheBank = web3.eth.contract(config.address.TheBank,config.ABI.TheBank);
-var ComDAO = web3.eth.contract(config.address.ComDAO,config.ABI.ComDAO);
-	
+var TheBank = web3.eth.contract(JSON.parse(proj_config.ABI.TheBank)),
+    TheBankContract = TheBank.at(proj_config.address.TheBank);
+    
 client.subscribe(SUB_AUTHENTICATE_TOPIC);
 client.subscribe(SUB_WASTE_TOPIC);
 
@@ -32,8 +31,9 @@ client.on('message', function(topic, incoming_message){
         // check the transaction table for the random string.
         // if the string exists, send open message
         
-    	client.publish(PUB_AUTHENTICATE_TOPIC, response);
-    	
+
+        client.publish(PUB_AUTHENTICATE_TOPIC, response);
+        
     }else if(topic === SUB_WASTE_TOPIC){
 
         var msg = JSON.parse(message);
@@ -57,7 +57,7 @@ client.on('message', function(topic, incoming_message){
 
         });
 
-    	
+        
     }else{
 
         client.publish(PUB_AUTHENTICATE_TOPIC,"Response topic unknown");

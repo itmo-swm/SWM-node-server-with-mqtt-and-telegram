@@ -28,11 +28,10 @@ client.on('message', function(topic, incoming_message){
 
 
     if(topic === SUB_AUTHENTICATE_TOPIC){
-        if(redis.get(message))
-            response = "{'status' : 'authenticated','open':'true'}";
-        else
-            response = "{'status' : 'not autheticated','open':'false'}";
 
+        // check the transaction table for the random string.
+        // if the string exists, send open message
+        
     	client.publish(PUB_AUTHENTICATE_TOPIC, response);
     	
     }else if(topic === SUB_WASTE_TOPIC){

@@ -12,7 +12,7 @@ var web3 = new Web3(new Web3.providers.HttpProvider(config.rpc_server+':'+config
 
 var TheBank = web3.eth.contract(JSON.parse(proj_config.ABI.TheBank)),
     TheBankContract = TheBank.at(proj_config.address.TheBank);
-	
+
 client.subscribe(SUB_AUTHENTICATE_TOPIC);
 client.subscribe(SUB_WASTE_TOPIC);
 
@@ -31,9 +31,8 @@ client.on('message', function(topic, incoming_message){
         // check the transaction table for the random string.
         // if the string exists, send open message
         
-
     	client.publish(PUB_AUTHENTICATE_TOPIC, response);
-    	
+
     }else if(topic === SUB_WASTE_TOPIC){
 
         var msg = JSON.parse(message);
@@ -57,7 +56,7 @@ client.on('message', function(topic, incoming_message){
 
         });
 
-    	
+        
     }else{
 
         client.publish(PUB_AUTHENTICATE_TOPIC,"Response topic unknown");

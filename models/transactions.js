@@ -1,7 +1,7 @@
 
 
 var mongoose = require('mongoose'),
-  Schema = mongoose.Schema;
+Schema = mongoose.Schema;
 
 var TransactionSchema = new Schema({
   
@@ -9,20 +9,20 @@ var TransactionSchema = new Schema({
   user_account : { type: String, required : true }, // account string of the user using the sgb
   qr_code : { type: String, required : true }, // this qr is generated when user selects to throw waste from telegram app
   waste_type : {
-                  type: String,
-                  enum: ["ORGANIC", "PLASTIC", "GLASS" , "METAL"],
-                  required : true
+    type: String,
+    enum: ["ORGANIC", "PLASTIC", "GLASS" , "METAL"],
+    required : true
                 }, // Only one of these options are possible for owner_type
-  waste_weight : { type: Number },
+                waste_weight : { type: Number },
   transaction_cost : { type: Number, default : null} // in ETH, the gasUsed attribute of block is to be queried to get this value
 });
 
 
 // these are more like model methods. forExample: <SGB_Detail_Schema_object>.date returns the current timestamp
 TransactionSchema.virtual('timestamp')
-  .get(function(){
-    return this._id.getTimestamp();
-  });
+.get(function(){
+  return this._id.getTimestamp();
+});
 
 //total_cost is the total price a SGB owner has to incur. It includes the cost of investment per transaction plus the gasPrice to execute the transaction
 //If blockchain is to be used as a storage, the gasPrice for transaction is going to increase significantly
@@ -34,8 +34,9 @@ TransactionSchema.virtual('total_cost').get(function(){
 
 //checks if a transaction is complete. Look below for desciprtion of a complete transaction
 TransactionSchema.virtual('is_complete').get(function(){
-    return this.transaction_cost;
+  return this.transaction_cost;
 });
+
 
 
 

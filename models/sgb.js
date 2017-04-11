@@ -39,7 +39,14 @@ SGBSchema.virtual('is_full').get(function(){
 SGBSchema.virtual('remaining_capacity').get(function(){
 
 	var diff = this.max_capacity - this.current_state;
+
 	return (diff/this.max_capacity)*100;
+
+});
+
+SGBSchema.virtual('percent_used').get(function(){
+  
+  return (this.current_state/this.max_capacity)*100;
 
 });
 

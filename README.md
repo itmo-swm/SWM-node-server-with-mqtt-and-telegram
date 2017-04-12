@@ -1,0 +1,2 @@
+# POC-Smart-Waste-Management-using-IOT-And-Blockchains
+This project is part of master thesis for PERCCOM and bIoTope project. It is a proof of concept of a smart waste management system using blockchains and iot. We have created a simulation of SGB that uses MQTT protocol to interact with NodeJS server that interfaces with Ethereum Blockchain using web3. A private ethereum network is run in Openstack instance of ITMO cloud which is accessed through RPC calls from NodeJS server

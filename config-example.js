@@ -1,18 +1,31 @@
 var config = { 
 				address: 
 						{
-							'TheBank' : '<TheBank ethereum address>', //0x64042b4bbebded191aaa50359d1aba6a42f8c764
-							'Manish' : '',
-							'Oleg' : '',
-							'Andrei' : '', // has account in bank
-							'Margarita' : '', // has account in bank
-							'Shubi': '', // has account in bank
-							'com_dao_mem1': '',
-							'com_dao_mem2': '',
-							'com_dao_mem3': '',
-							'SGBFactory' : '', // the comDAO fund is to be sent to this address
-							'ComDAO' : '',
-							'coin_base': ''
+							'private_net':{
+
+									'TheBank' : '<address>',
+									'User1' : '<address>', //can be a ComDAO member
+									'User2' : '<address>', //can be a ComDAO member
+									'User3' : '<address>', //can be a ComDAO member
+									'User4': '<address>', // can be a waste thrower
+									'SGBFactory' : '<address>', // the comDAO fund is to be sent to this address, simulating the purchase of SGB from its factory
+									'ComDAO' : '<address>',
+									'coin_base': '<address>',								
+
+							},
+
+							'test_net':{
+
+								'TheBank' : '<address>',
+								'User1' : '<address>',
+								'User2' : '<address>',
+								'User3' : '<address>',
+								'User4': '<address>', // has account in bank
+								'SGBFactory' : '<address>', // the comDAO fund is to be sent to this address
+								'ComDAO' : '<address>',
+								'coin_base': '<address>',								
+
+							}		
 
 						},
 				'ABI':{
@@ -23,20 +36,20 @@ var config = {
 					},
 				'password' : {
 
-							'coin_base' : 'Ec01o9'
+							'coin_base' : '<password>'
 				},
-				'rpc_server' : '<server ip>',
-				'rpc_port'   : '<server port>',
+				'rpc_server_private' : '<ip>',
+				'rpc_port_private'   : 5678,
+				'rpc_server_test' : 'localhost',
+				'rpc_port_test'   : 8545,
 				'api_key':'<telegram api key>',
 				'db' : 'mongodb://localhost/smart-waste-management-development',
-				'mosquito_broker': 'mqtt://<mosquito_broker_ip>:<port>',
+				'mosquito_broker': 'mqtt://<broker ip>:1883',
 				'price_api' : 'https://coinmarketcap-nexuist.rhcloud.com/api/eth',
-				'map_url' : 'https://vast-falls-42691.herokuapp.com/maps/'
+				'map_url' : 'https://vast-falls-42691.herokuapp.com/maps/' //url for the sgb simulator. It can be found in github
 
 			};
 
 
 module.exports = config;
 
-//shubi = 200000000000
-//ComDAO = 0

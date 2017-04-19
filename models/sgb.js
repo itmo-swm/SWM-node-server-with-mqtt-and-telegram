@@ -1,3 +1,5 @@
+// This model represents a Smart Garbage Bin
+
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema;
 
@@ -7,7 +9,7 @@ var SGBSchema = new Schema({
                     	            type : { type : String }, //type: "Point" is not supported. Refer http://stackoverflow.com/questions/32199658/create-find-geolocation-in-mongoose 
                     	            coordinates : [ Number, Number ]
                             	 },
-                      minimum_balance_required : { type : Number, default: 0.25 },  //user should have at least this balance in their ethereum wallet. The min_bal_required cant be less than 0.25 ETH
+                      minimum_balance_required : { type : Number, default: 0.05 },  //user should have at least this balance in their ethereum wallet. The min_bal_required cant be less than 0.25 ETH
                       owner_type : {
                     		             type: String,
                     			           enum: ["PRIVATE", "GOVERNMENTAL", "COMMUNITY" , "JOINT_VENTURE"]

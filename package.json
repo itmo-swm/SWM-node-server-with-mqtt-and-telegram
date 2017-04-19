@@ -9,6 +9,7 @@
   "author": "Manish Lamichhane",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.15.2",
     "mongoose": "^4.9.3",
     "mqtt": "^2.6.0",
     "qr-image": "^3.2.0",

@@ -4,8 +4,8 @@
 	For convenience and test, we have used 1 PercCoin = 1 Szabo.
 	1 Ether = 10^6 szabo
 	At present, 1 Eth = 50 EUR = 5000 cents
-	So, 5000 Cents = 10^6 szabo
-	Hence, 125 Cents = (10^6/5000)*125 = 25000 Szabo.
+	So, 5000 Cents = 10^18 wei
+	Hence, 125 Cents = (10^18/5000)*125 = 
 	Decimals arent supported in Solidity, so price is rounded off at last
 	
  */
@@ -25,7 +25,7 @@ var calc = function(waste_amt){
     	console.log("wa: "+rounded_waste_amt);
 		var price_in_cents = rounded_waste_amt * price_rate;
 		console.log("pic: "+price_in_cents);
-		price_in_szabo =  (Math.pow(10,6) / exchange) * price_in_cents;
+		price_in_szabo =  (Math.pow(10,18) / exchange) * price_in_cents;
 		
 		console.log("pis: "+Math.round(price_in_szabo));	
  	});

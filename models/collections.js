@@ -1,0 +1,1 @@
+// This model is a collection of waste collection data

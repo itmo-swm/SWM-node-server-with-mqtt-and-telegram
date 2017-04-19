@@ -1,4 +1,4 @@
-
+// This model is a collection of transactions created by a user disposing waste in SGB
 
 var mongoose = require('mongoose'),
 Schema = mongoose.Schema;

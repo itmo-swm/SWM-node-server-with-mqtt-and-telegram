@@ -1,35 +1,18 @@
 var config = { 
 				address: 
 						{
-							'private_net':{
-
-									'TheBank' : '0xe13bcf5b91dc6c5963fa32b4829643d170d39206', //0x64042b4bbebded191aaa50359d1aba6a42f8c764
-									'Manish' : '0x3622c8a94946f4c38e9094656a83d34cbb9d2d37',
-									'Oleg' : '0x6a359bf3c362bd4d78896da703fdf68e4f1ab5a7',
-									'Andrei' : '0x766c8755b61ab31414a0227910a96ef7133c3647', // has account in bank
-									'Margarita' : '0xa7db9878577f4014e444600c23280f93c46a7a5a', // has account in bank
-									'Shubi': '0xe819677fd54034a27504e0c598af1274691474fe', // has account in bank
-									'com_dao_mem1': '0x4d5c81c2f3c584fb09f0b1dadba567efbd4a4330',
-									'com_dao_mem2': '0x14fed2700022591cfbdf02778e57b52d69db0ea8',
-									'com_dao_mem3': '0xa0c252f7bea1943474d076f402df1205bdb12b07',
-									'SGBFactory' : '0x899835796d820c29b81583fca7967dd01f7056a4', // the comDAO fund is to be sent to this address
-									'ComDAO' : '0xb7fe5d01d33b6405904edde2b58687fae11b664f',
-									'coin_base': '0x85ded4eae096d15de9bee720a6e91eb28603a7e6'
-
-							},
-
-							'test_net':{
-
-								'TheBank' : '0x48dc24750d2c2d6c8fa9bc3f9b59b62ce29cad67',
-								'Manish' : '0xe984a65fc473aDd1D0D023C4b00D11f046e0D4cC',
-								'Oleg' : '0x14f846E223051899656E1E5711DaAb47e5711028',
-								'Andrei' : '0x69a9c64aB9B36ab5568DA0944719E229eE780122',
-								'Shubi': '0xAA678fb23616caebFAA3fd2EFE51773d5FAe68a5', // has account in bank
-								'SGBFactory' : '0x69e2fe6832da24b767b3553e362b044ca272e8dd', // the comDAO fund is to be sent to this address
-								'ComDAO' : '0xc492cbb57c99efcddbaa0d182942942069ee118c',
-								'coin_base': '0xc2D8636B266700356ad52527af8Fc0841285895b'								
-
-							}		
+							'TheBank' : '<TheBank ethereum address>', //0x64042b4bbebded191aaa50359d1aba6a42f8c764
+							'Manish' : '',
+							'Oleg' : '',
+							'Andrei' : '', // has account in bank
+							'Margarita' : '', // has account in bank
+							'Shubi': '', // has account in bank
+							'com_dao_mem1': '',
+							'com_dao_mem2': '',
+							'com_dao_mem3': '',
+							'SGBFactory' : '', // the comDAO fund is to be sent to this address
+							'ComDAO' : '',
+							'coin_base': ''
 
 						},
 				'ABI':{
@@ -42,13 +25,11 @@ var config = {
 
 							'coin_base' : 'Ec01o9'
 				},
-				'rpc_server_private' : '77.234.202.168',
-				'rpc_port_private'   : 5678,
-				'rpc_server_test' : 'localhost',
-				'rpc_port_test'   : 8545,
-				'api_key':'257024353:AAHyAVccpsfBZUBwfvPD030SVNJBiPpYbUo',
+				'rpc_server' : '<server ip>',
+				'rpc_port'   : '<server port>',
+				'api_key':'<telegram api key>',
 				'db' : 'mongodb://localhost/smart-waste-management-development',
-				'mosquito_broker': 'mqtt://77.234.202.168:1883',
+				'mosquito_broker': 'mqtt://<mosquito_broker_ip>:<port>',
 				'price_api' : 'https://coinmarketcap-nexuist.rhcloud.com/api/eth',
 				'map_url' : 'https://vast-falls-42691.herokuapp.com/maps/'
 
@@ -57,3 +38,5 @@ var config = {
 
 module.exports = config;
 
+//shubi = 200000000000
+//ComDAO = 0

@@ -2,31 +2,54 @@
     rpc_server = "http://"+proj_config.rpc_server+":"+proj_config.rpc_port,
     TeleBot = require('telebot'),
     bot = new TeleBot(proj_config.api_key),
-    web3 = require('web3'),
+    /*web3 = require('web3'),*/
+    Blockchain = require('./Blockchain'),
+    TheBankContract = Blockchain.TheBank,
     http = require('http'),
     fs = require('fs'),
     randomstring = require("randomstring"),
+    request = require('request'),
     qr_image_format = 'png',
-    Web3 = require('web3'),
-    web3 = new Web3(new Web3.providers.HttpProvider(rpc_server)),
-    TheBank = web3.eth.contract(JSON.parse(proj_config.ABI.TheBank)),
-    TheBankContract = TheBank.at(proj_config.address.TheBank),
     min_bal_required = 0,
     mongoose = require('mongoose'),
     SGB = require('./models/sgb'),
     Transaction = require('./models/transactions');
-    
-
-    /*if(!fs.existsSync(image_folder))
-       fs.mkdirSync(image_folder);*/
 
     // The SGBs lying in a circle with user's location and this radius (in KM) are queried for in the database
     const km_radius = 3;
     const map_marker_colors = ['blue','green','red','orange'];
-
     bot.use(require('./node_modules/telebot/modules/ask.js'));
 
-    bot.on('ask.dispose', msg => {
+    // Buttons
+    bot.on(['/hello','/back'], msg => {
+
+      let markup = bot.keyboard([
+        
+        ['/throw', '/collect','/back', '/hide']
+      ], { resize: true });
+
+      return bot.sendMessage(msg.from.id, 'Smart Waste Management Menu.', { markup });
+
+    });
+
+    // Hide keyboard
+    bot.on('/hide', msg => {
+      return bot.sendMessage(
+        msg.from.id, 'Hide keyboard example. Type /back to show.', { markup: 'hide' }
+      );
+    });
+
+    bot.on('/throw', msg => {
+
+      const id = msg.from.id;
+  
+      // Ask user name
+      return bot.sendMessage(id, 'Please enter your Ethereum account: ', { ask: 'throw' });
+
+    });
+
+
+    bot.on('ask.throw', msg => {
 
       let fromId = msg.from.id;
       chat_id = fromId;
@@ -37,7 +60,8 @@
       let account = msg.text;
       //let waste_type = text[2].toUpperCase(); 
       let waste_type = "ORGANIC"; 
-      let balance = TheBankContract.balanceOf.call(account,{from: proj_config.address.TheBank}).valueOf();      
+      let balance = TheBankContract.balanceOf.call(account,{from: proj_config.address.TheBank}).valueOf();
+      balance = Blockchain.from_wei(balance,"ether"); 
 
       // check if the balance  of use is more than min_balance_required
       if(balance <= min_bal_required)
@@ -69,17 +93,16 @@
         // request location
         var response_text = `Dispose. Waste type: `+ waste_type+`. Account balance: `+ balance+ ` Please send your location `;
         var markup = bot.keyboard([[bot.button('location','Send location: ')]],"once"); 
-        return bot.sendMessage(fromId, response_text, { markup });
+        return bot.sendMessage(fromId, response_text, { markup, ask: 'thrower_location' });
       });
-
-        
-  
     });
 
-    bot.on('location', msg => {
+    //listens to the location message of waste thrower
+    bot.on('ask.thrower_location', msg => {
       // this location event is fired whenever a location is sent in the chat by the user
       // to map the event with the appropriate chat, the chat id can be mapped.
-      const {latitude, longitude} = msg.location;   
+      const {latitude, longitude} = msg.location;
+      console.log(latitude+","+longitude);   
       let fromId = msg.from.id,
       firstName = msg.from.first_name,
       reply = msg.message_id,
@@ -87,65 +110,40 @@
 
       // query the db for the closest SGB location where min_bal_required < user.balance
       SGB.findOne(query).then(function(validSGB){  
-        
-          //if validSGB is empty, return appropriate messsage
-          console.log(validSGB);
           if(Object.keys(validSGB).length === 0 )
             return bot.sendMessage(fromId, `Sorry there are no SGB in `+ km_radius +` km circle your location`, { reply });
-          /******************************************************************** Static Map  ******************************************************************/
-          //a sample of how the attributes of markers are to be defined to place in the static google map.
-          //color:blue|label:S|60.120326,30.2857044&markers=color:green|label:G|59.9445047,30.2929776&markers=color:red|label:C|59.9399965,30.2963032
-          /*var marker_attribute = "";
-          validSGB.forEach(function(item,index){
-            console.log("remaining_capacity (in percent): "+item.remaining_capacity);
-            marker_attribute += "markers=color:" + map_marker_colors[Math.floor(Math.random() * map_marker_colors.length)] + "|label:"+ (index + 1) + "|";
-            marker_attribute += item.location.coordinates[0]+","+item.location.coordinates[1];
-            if(index != Object.keys(validSGB).length - 1 )
-              marker_attribute += "&";
-
+          //getting ETH to EUR conversion
+          //It will be displayed in the google map
+          request(proj_config.price_api,function(err,res,data){
+            var exchange = JSON.parse(data).price.eur.toFixed(2); 
+            var map_url = "https://vast-falls-42691.herokuapp.com/maps/?lat="+validSGB.location.coordinates[0]+"&lon="+validSGB.location.coordinates[1]+"&clat="+latitude+"&clon="+longitude+"&percent_filled="+validSGB.percent_used+"&exchange="+exchange;
+            console.log(map_url);
+            return bot.sendMessage(fromId, map_url, { reply });
           });
-          var google_static_marker_url = "http://maps.google.com/maps/api/staticmap?center="+latitude+","+longitude+"&zoom=16&size=512x512&maptype=roadmap&"+marker_attribute+"&sensor=false"
-  
-          */
-          /******************************************************************* Dynamic Map hosted in Heroku****************************************************************************/
-          /*
-            https://vast-falls-42691.herokuapp.com/maps/?lat=60.0120326&lon=30.2857044&clat=60.0120326&clon=30.2857044&percent_filled=10
-            
-          */
-          var map_url = "https://vast-falls-42691.herokuapp.com/maps/?lat="+validSGB.location.coordinates[0]+"&lon="+validSGB.location.coordinates[1]+"&clat="+latitude+"&clon="+longitude+"&percent_filled="+validSGB.percent_used;
-          console.log(map_url);
-          return bot.sendMessage(fromId, map_url, { reply });
       });       
     });
 
 
-    // Buttons
-    bot.on(['/hello','/back'], msg => {
-
-      let markup = bot.keyboard([
-        
-        ['/throw', '/collect','/back', '/hide']
-      ], { resize: true });
-
-      return bot.sendMessage(msg.from.id, 'Smart Waste Management Menu.', { markup });
-
-    });
-
-    // Hide keyboard
-    bot.on('/hide', msg => {
-      return bot.sendMessage(
-        msg.from.id, 'Hide keyboard example. Type /back to show.', { markup: 'hide' }
-      );
-    });
-
-    bot.on('/throw', msg => {
+  bot.on('/collect', msg => {
 
       const id = msg.from.id;
   
       // Ask user name
-      return bot.sendMessage(id, 'Please enter your Ethereum account: ', { ask: 'dispose' });
+      return bot.sendMessage(id, 'Please enter your Ethereum account: ', { ask: 'collect' });
 
-    });
+  });
+
+
+  // It will return all the sgb that are >= 50% filled. There are associated bounties on all the SGBs which is also displayed.
+  bot.on('ask.collect', msg => {
+
+    
+
+  });    
+
+
+
+    
 
     function getSGBLocationsQuery(latitude,longitude,radiusInKM){
 
@@ -157,7 +155,7 @@
                                   ]
                             }
                     }
-
+      // db.sgbs.findOne({"location": { $geoWithin : { $centerSphere : [59.9445047,30.2929776,0.00047088369172814315] } } })
       var query = {
                     "location" : {
                         $geoWithin : {

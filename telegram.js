@@ -60,7 +60,7 @@
       let account = msg.text;
       //let waste_type = text[2].toUpperCase(); 
       let waste_type = "ORGANIC"; 
-      let balance = TheBankContract.balanceOf.call(account,{from: proj_config.address.TheBank}).valueOf();
+      let balance = TheBankContract.balanceOf.call(account,{from: proj_config.address.private_net.TheBank }).valueOf();
       balance = Blockchain.from_wei(balance,"ether"); 
 
       // check if the balance  of use is more than min_balance_required
@@ -115,7 +115,15 @@
           //getting ETH to EUR conversion
           //It will be displayed in the google map
           request(proj_config.price_api,function(err,res,data){
-            var exchange = JSON.parse(data).price.eur.toFixed(2); 
+            var exchange = 0;
+            try{
+
+              exchange = JSON.parse(data).price.eur.toFixed(2); 
+                
+            }catch(e){
+              exchange = 45.50;
+            }
+            
             var map_url = "https://vast-falls-42691.herokuapp.com/maps/?lat="+validSGB.location.coordinates[0]+"&lon="+validSGB.location.coordinates[1]+"&clat="+latitude+"&clon="+longitude+"&percent_filled="+validSGB.percent_used+"&exchange="+exchange;
             console.log(map_url);
             return bot.sendMessage(fromId, map_url, { reply });

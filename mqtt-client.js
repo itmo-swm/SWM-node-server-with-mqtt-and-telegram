@@ -8,7 +8,7 @@ var PUB_WASTE_TOPIC = "SERVER/Waste";
 var SUB_AUTHENTICATE_TOPIC = "SGB/Authenticate";
 var SUB_WASTE_TOPIC = "SGB/Waste";
 
-var rpc_server = "http://"+config.rpc_server_test+":"+config.rpc_port_test;
+var rpc_server = "http://"+config.rpc_server_private+":"+config.rpc_port_private;
 var Web3 = require('web3');
 var web3 = new Web3(new Web3.providers.HttpProvider(rpc_server));
 
@@ -66,48 +66,55 @@ client.on('message', function(topic, incoming_message){
                         Decimals arent supported in Solidity, so price is rounded off at last
                         
                      */
-                     // getting realtime ether-eur conversion from cryto exchange API
-                     var waste_amt = msg.waste_amt - sgb.current_state;
-                    request(config.price_api,function(err,res,data){
-                        var exchange = Number(JSON.parse(data).price.eur.toFixed(2)); 
-                        // converting into euro-cents
-                        exchange = exchange * 100; //converting to cent
-                        var price_in_cents = waste_amt * sgb.fixed_unit_cost; // fixed_costt_unit is defined in %, e.g. 0.05 (means 5%)
-                        var service_charge =  (Math.pow(10,18) / exchange) * price_in_cents;
-                        service_charge = Math.round(service_charge); 
-                        // solidity doesnt take decimal values so rounding the price to nearest whole number szabo value   
-                        // the "current_state" of this sgb is to be updated here. This helps to return the most fit waste bin to users using telegram app
-                        // waste bin can be sorted based on the amount of waste they have
-                        // It can be beneficial to waste collector and waste bin users both
+                        // getting realtime ether-eur conversion from cryto exchange API
+                        var waste_amt = msg.waste_amt - sgb.current_state;
+                        request(config.price_api,function(err,res,data){
+                            var exchange = 0;
+                            try{
 
-                        //sgb.current_state = sgb.current_state + msg.waste_amt;
-                        sgb.current_state = msg.waste_amt;                                        
-                        sgb.save(function(err){
-                            if(!err)
-                                console.log("Waste amt: "+waste_amt+" gm is added to SGB: "+msg.sgb_id);
-                            else
-                                console.log("Couldn't update the current_state of "+msg.sgb_id);
-                        });
-                        web3.personal.unlockAccount(config.address.test_net.coin_base,config.password.coin_base,5461);
-                            /* 
-                                It has to be executed from the coin_base account, as the coin_base account is the one that created the bank account
-                                So the bank owner is assigned as coin_base account which is the only authorised account to execute this transfer
-                            */
-                            console.time('blockchain_write');
-                            TheBankContract.payOnUsersBehalf(user_account,owner_account,service_charge,{from: config.address.test_net.coin_base},function(err,res){
-                                console.timeEnd('blockchain_write'); //outputs the execution time of the blockchain write operation
-                                console.log("Transfer of "+service_charge+ " to "+owner_account);
-                                // the mongdb transactions collection should be updated here
-                                transaction.waste_weight = waste_amt; // if this is negative, it means waste is taken out, positive means waste is added
-                                transaction.transaction_cost = Number(service_charge);
-                                transaction.sgb = mongoose.Types.ObjectId(msg.sgb_id);
-                                transaction.save(function(err){
-                                    console.log("Transaction: "+transaction._id+" has been updated");
-                                });
+                              exchange = JSON.parse(data).price.eur.toFixed(2); 
+                                
+                            }catch(e){
+                              exchange = 45.50;
+                            }
+                            // converting into euro-cents
+                            exchange = exchange * 100; //converting to cent
+                            var price_in_cents = waste_amt * sgb.fixed_unit_cost; // fixed_costt_unit is defined in %, e.g. 0.05 (means 5%)
+                            var service_charge =  (Math.pow(10,18) / exchange) * price_in_cents;
+                            service_charge = Math.round(service_charge); 
+                            // solidity doesnt take decimal values so rounding the price to nearest whole number szabo value   
+                            // the "current_state" of this sgb is to be updated here. This helps to return the most fit waste bin to users using telegram app
+                            // waste bin can be sorted based on the amount of waste they have
+                            // It can be beneficial to waste collector and waste bin users both
+
+                            //sgb.current_state = sgb.current_state + msg.waste_amt;
+                            sgb.current_state = msg.waste_amt;                                        
+                            sgb.save(function(err){
+                                if(!err)
+                                    console.log("Waste amt: "+waste_amt+" gm is added to SGB: "+msg.sgb_id);
+                                else
+                                    console.log("Couldn't update the current_state of "+msg.sgb_id);
                             });
-                            client.publish(PUB_WASTE_TOPIC,'{"message": "Waste data received","status":"SUCCESS", "info":"Transaction being mined. Check contract events"}');
-                            console.log("Waste Data published");
-                    });
+                            web3.personal.unlockAccount(config.address.private_net.coin_base,config.password.coin_base,5461);
+                                /* 
+                                    It has to be executed from the coin_base account, as the coin_base account is the one that created the bank account
+                                    So the bank owner is assigned as coin_base account which is the only authorised account to execute this transfer
+                                */
+                                console.time('blockchain_write');
+                                TheBankContract.payOnUsersBehalf(user_account,owner_account,service_charge,{from: config.address.test_net.coin_base},function(err,res){
+                                    console.timeEnd('blockchain_write'); //outputs the execution time of the blockchain write operation
+                                    console.log("Transfer of "+service_charge+ " to "+owner_account);
+                                    // the mongdb transactions collection should be updated here
+                                    transaction.waste_weight = waste_amt; // if this is negative, it means waste is taken out, positive means waste is added
+                                    transaction.transaction_cost = Number(service_charge);
+                                    transaction.sgb = mongoose.Types.ObjectId(msg.sgb_id);
+                                    transaction.save(function(err){
+                                        console.log("Transaction: "+transaction._id+" has been updated");
+                                    });
+                                });
+                                client.publish(PUB_WASTE_TOPIC,'{"message": "Waste data received","status":"SUCCESS", "info":"Transaction being mined. Check contract events"}');
+                                console.log("Waste Data published");
+                        });
                 });
             }
         });
